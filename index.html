@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Internship by Lindaa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 h-full flex flex-col overflow-hidden">
+
+    <div id="login-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-gray-100 transform transition-all">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl mx-auto shadow-lg shadow-indigo-500/30 mb-4">
+                    LI
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Social Media Internship</h1>
+                <p class="text-xs text-gray-500 mt-1">MySQL Database Connected CMS by Lindaa</p>
+            </div>
+
+            <!-- Role Selector Tabs -->
+            <div class="flex bg-gray-100 p-1.5 rounded-2xl mb-6">
+                <button type="button" onclick="switchLoginRole('admin')" id="tab-admin" class="flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 bg-white text-indigo-600 shadow-sm">
+                    <i class="fa-solid fa-user-shield mr-1.5"></i> Admin (Kelola)
+                </button>
+                <button type="button" onclick="switchLoginRole('user')" id="tab-user" class="flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 text-gray-500 hover:text-gray-800">
+                    <i class="fa-solid fa-eye mr-1.5"></i> User (Lihat & ACC)
+                </button>
+            </div>
+
+            <!-- Login Forms Container -->
+            <div id="login-forms-container">
+                <!-- Admin Form -->
+                <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Username Admin</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                                <i class="fa-solid fa-user text-xs"></i>
+                            </span>
+                            <input type="text" id="admin-username" required placeholder="Masukkan username admin" class="w-full bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
+                                <i class="fa-solid fa-lock text-xs"></i>
+                            </span>
+                            <input type="password" id="admin-password" required placeholder="Masukkan password" class="w-full bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 text-sm mt-2">
+                        Masuk Sebagai Admin
+                    </button>
+                </form>
+
+                <!-- User Login Form -->
+                <div id="user-login-section" class="hidden space-y-4">
+                    <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 text-center">
+                        <i class="fa-solid fa-circle-info text-indigo-600 text-lg mb-1"></i>
+                        <p class="text-xs text-indigo-900 font-medium">Masuk sebagai User (Viewer). Anda dapat melihat jadwal konten, pratinjau gambar, klik link postingan, serta memberikan status ACC / Ditolak.</p>
+                    </div>
+                    <button type="button" onclick="handleUserLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-200 text-sm">
+                        Masuk Sebagai User (Tanpa Password)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app" class="h-full flex flex-col md:flex-row overflow-hidden hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-72 bg-slate-900 text-white flex flex-col h-auto md:h-full flex-shrink-0 shadow-xl z-20">
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/30">
+                        LI
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base tracking-tight">Internship by Lindaa</h1>
+                        <p id="current-user-badge" class="text-xs text-slate-400 font-medium">Role: Admin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media List Container -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-2" id="sidebar-platforms">
+                <!-- Dynamically populated platforms -->
+            </div>
+
+            <!-- Add Platform Button (Admin Only) -->
+            <div id="admin-sidebar-action" class="p-4 border-t border-slate-800 space-y-2">
+                <button type="button" onclick="openAddPlatformModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20 text-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Tambah Social Media</span>
+                </button>
+                <button type="button" onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center space-x-2 text-xs">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Keluar (Ganti Akun)</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50">
+            <!-- Top Navbar -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm z-10">
+                <div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500 mb-1">
+                        <span>Social Media</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                        <span id="breadcrumb-platform" class="font-semibold text-indigo-600">Basisnetwork</span>
+                    </div>
+                    <h2 id="main-title" class="text-2xl font-bold text-gray-800 tracking-tight">Basisnetwork</h2>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button type="button" id="admin-add-content-btn" onclick="openAddContentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 flex items-center space-x-2 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Tambah Konten Baru</span>
+                    </button>
+                    <button type="button" onclick="logout()" id="user-logout-top-btn" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-medium text-sm transition duration-200 items-center space-x-2">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Keluar</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 md:p-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                    <!-- Table Header Actions & Search Bar -->
+                    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <h3 class="font-semibold text-gray-700 text-sm" id="table-subtitle">Daftar Jadwal & Ide Konten (MySQL Database)</h3>
+                        </div>
+                        
+                        <!-- Search Bar & Platform Actions -->
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                    <i class="fa-solid fa-search text-xs"></i>
+                                </span>
+                                <input type="text" id="search-input" oninput="handleSearch(event)" placeholder="Cari ide konten / tanggal..." class="w-full sm:w-64 bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-4 py-2 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                            </div>
+
+                            <div id="admin-platform-actions" class="flex items-center space-x-2">
+                                <button type="button" onclick="openEditPlatformModal()" class="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-xl hover:bg-gray-100 transition text-xs font-medium border border-gray-200 flex items-center space-x-1.5" title="Edit Nama Platform">
+                                    <i class="fa-solid fa-pen-to-square"></i> <span>Edit Platform</span>
+                                </button>
+                                <button type="button" onclick="deleteCurrentPlatform()" class="text-gray-500 hover:text-rose-600 px-3 py-2 rounded-xl hover:bg-gray-100 transition text-xs font-medium border border-gray-200 flex items-center space-x-1.5" title="Hapus Platform">
+                                    <i class="fa-solid fa-trash-can"></i> <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse table-auto">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-200">
+                                    <th class="py-4 px-6 w-16 text-center">No</th>
+                                    <th class="py-4 px-6 w-36 whitespace-nowrap">Tanggal Posting</th>
+                                    <th class="py-4 px-6 min-w-[280px]">Ide Konten</th>
+                                    <th class="py-4 px-6 w-44">Status / Gambar</th>
+                                    <th class="py-4 px-6 w-40 text-center">Persetujuan (ACC)</th>
+                                    <th class="py-4 px-6 w-44 text-center">Link Postingan</th>
+                                    <th id="th-action-col" class="py-4 px-6 w-32 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="content-table-body" class="divide-y divide-gray-100 text-sm text-gray-700">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4">
+                        <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-1">Belum ada konten</h4>
+                        <p class="text-gray-500 text-sm text-center max-w-sm mb-6">Mulai tambahkan jadwal dan ide konten untuk platform ini sekarang.</p>
+                        <button type="button" id="empty-add-btn" onclick="openAddContentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-sm">
+                            Tambah Konten Pertama
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Add/Edit Content -->
+    <div id="content-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 transform transition-all">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <h3 id="content-modal-title" class="font-bold text-gray-800 text-lg">Tambah Konten Baru</h3>
+                <button type="button" onclick="closeContentModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="content-form" onsubmit="handleContentSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="content-id">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Tanggal Posting <span class="text-gray-400 font-normal lowercase">(opsional)</span></label>
+                    <input type="date" id="content-date" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Ide Konten</label>
+                    <textarea id="content-idea" rows="4" required placeholder="Tuliskan ide konten, caption, atau konsep visual..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Link Postingan <span class="text-gray-400 font-normal lowercase">(URL Instagram / TikTok / dll)</span></label>
+                    <input type="url" id="content-post-link" placeholder="https://www.instagram.com/p/..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Upload Gambar / Desain</label>
+                    <input type="file" id="content-image-file" accept="image/*" onchange="previewImageInput(event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <input type="hidden" id="content-image-data">
+                    <div id="image-preview-container" class="mt-3 hidden">
+                        <img id="image-preview" src="" alt="Preview" class="h-24 w-auto rounded-xl object-cover border border-gray-200 shadow-sm">
+                        <button type="button" onclick="removeUploadedImage()" class="text-xs text-rose-600 font-medium mt-1 hover:underline block"><i class="fa-solid fa-trash"></i> Hapus Gambar</button>
+                    </div>
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-3 border-t border-gray-100">
+                    <button type="button" onclick="closeContentModal()" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow-md shadow-indigo-500/20 transition">Simpan ke Database</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit Platform -->
+    <div id="platform-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <h3 id="platform-modal-title" class="font-bold text-gray-800 text-lg">Tambah Social Media Baru</h3>
+                <button type="button" onclick="closePlatformModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="platform-form" onsubmit="handlePlatformSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="platform-old-name">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5">Nama Social Media / Akun</label>
+                    <input type="text" id="platform-name-input" required placeholder="Contoh: tiktok_indonesia" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-3 border-t border-gray-100">
+                    <button type="button" onclick="closePlatformModal()" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow-md shadow-indigo-500/20 transition">Simpan Platform</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Image Zoom / Viewer -->
+    <div id="image-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeImageViewer(event)">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <div class="absolute -top-12 right-0 flex items-center space-x-3">
+                <a id="viewer-download-btn" href="#" download="konten-lindaa.png" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg transition">
+                    <i class="fa-solid fa-download"></i> <span>Download Gambar</span>
+                </a>
+                <button type="button" onclick="closeImageViewerDirect()" class="text-white text-xl hover:text-gray-300 transition w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <img id="viewer-img" src="" alt="Full Image" class="max-w-full max-h-[82vh] rounded-2xl object-contain shadow-2xl bg-black/40 border border-white/10">
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center space-x-3 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-message">Berhasil menyimpan ke database!</span>
+    </div>
+
+    <script>
+        const API_URL = 'api.php';
+        let currentUserRole = localStorage.getItem('lindaa_user_role') || null;
+        let appData = {};
+        let currentPlatform = localStorage.getItem('lindaa_current_platform') || 'Basisnetwork';
+        let isPlatformEditMode = false;
+        let searchQuery = "";
+
+        window.onload = function() {
+            if (currentUserRole) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                setupRoleUI();
+                fetchAppData();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        };
+
+        async function fetchAppData() {
+            try {
+                const response = await fetch(API_URL + '?action=get_data');
+                const result = await response.json();
+                if (result.success) {
+                    appData = result.data;
+                    const platforms = Object.keys(appData);
+                    if (platforms.length > 0 && !appData[currentPlatform]) {
+                        currentPlatform = platforms[0];
+                    }
+                    renderSidebar();
+                    renderContentTable();
+                } else {
+                    showToast(result.message || "Gagal memuat data dari database MySQL", "fa-triangle-exclamation", "text-amber-400");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Kesalahan koneksi ke server PHP/MySQL", "fa-triangle-exclamation", "text-rose-400");
+            }
+        }
+
+        function switchLoginRole(role) {
+            const tabAdmin = document.getElementById('tab-admin');
+            const tabUser = document.getElementById('tab-user');
+            const adminForm = document.getElementById('admin-login-form');
+            const userSection = document.getElementById('user-login-section');
+
+            if (role === 'admin') {
+                tabAdmin.className = "flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 bg-white text-indigo-600 shadow-sm";
+                tabUser.className = "flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 text-gray-500 hover:text-gray-800";
+                adminForm.classList.remove('hidden');
+                userSection.classList.add('hidden');
+            } else {
+                tabUser.className = "flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 bg-white text-indigo-600 shadow-sm";
+                tabAdmin.className = "flex-1 py-2.5 rounded-xl font-semibold text-xs transition duration-200 text-gray-500 hover:text-gray-800";
+                adminForm.classList.add('hidden');
+                userSection.classList.remove('hidden');
+            }
+        }
+
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value;
+
+            try {
+                const response = await fetch(API_URL + '?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    currentUserRole = 'admin';
+                    localStorage.setItem('lindaa_user_role', 'admin');
+                    enterApp();
+                    showToast("Berhasil login sebagai Admin dari MySQL!");
+                } else {
+                    showToast(result.message || "Username atau Password salah!", "fa-triangle-exclamation", "text-amber-400");
+                }
+            } catch (e) {
+                showToast("Gagal terhubung ke server database", "fa-triangle-exclamation", "text-rose-400");
+            }
+        }
+
+        function handleUserLogin() {
+            currentUserRole = 'user';
+            localStorage.setItem('lindaa_user_role', 'user');
+            enterApp();
+            showToast("Berhasil masuk sebagai User Viewer!");
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            setupRoleUI();
+            fetchAppData();
+        }
+
+        function logout() {
+            currentUserRole = null;
+            localStorage.removeItem('lindaa_user_role');
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            showToast("Berhasil keluar akun.", "fa-circle-info", "text-blue-400");
+        }
+
+        function setupRoleUI() {
+            const isAdmin = currentUserRole === 'admin';
+            document.getElementById('current-user-badge').innerText = isAdmin ? "Role: Admin (MySQL)" : "Role: User (View & ACC)";
+            
+            const adminSidebarAction = document.getElementById('admin-sidebar-action');
+            const adminAddBtn = document.getElementById('admin-add-content-btn');
+            const adminPlatformActions = document.getElementById('admin-platform-actions');
+            const userLogoutTop = document.getElementById('user-logout-top-btn');
+
+            if (isAdmin) {
+                adminSidebarAction.classList.remove('hidden');
+                adminAddBtn.classList.remove('hidden');
+                adminPlatformActions.classList.remove('hidden');
+                userLogoutTop.classList.add('hidden');
+            } else {
+                adminSidebarAction.classList.add('hidden');
+                adminAddBtn.classList.add('hidden');
+                adminPlatformActions.classList.add('hidden');
+                userLogoutTop.classList.remove('hidden');
+            }
+        }
+
+        function renderSidebar() {
+            const container = document.getElementById('sidebar-platforms');
+            container.innerHTML = '';
+
+            const platforms = Object.keys(appData);
+            platforms.forEach(platform => {
+                const isActive = platform === currentPlatform;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-full text-left px-4 py-3 rounded-xl font-medium text-sm transition duration-200 flex items-center justify-between group ${
+                    isActive 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 font-semibold' 
+                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`;
+                
+                const count = (appData[platform] || []).length;
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3 truncate">
+                        <i class="fa-solid fa-hashtag text-xs opacity-70"></i>
+                        <span class="truncate">${platform}</span>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'}">
+                        ${count}
+                    </span>
+                `;
+                btn.onclick = () => switchPlatform(platform);
+                container.appendChild(btn);
+            });
+        }
+
+        function switchPlatform(platform) {
+            currentPlatform = platform;
+            document.getElementById('search-input').value = '';
+            searchQuery = "";
+            localStorage.setItem('lindaa_current_platform', currentPlatform);
+            renderSidebar();
+            renderContentTable();
+        }
+
+        function handleSearch(event) {
+            searchQuery = event.target.value.toLowerCase().trim();
+            renderContentTable();
+        }
+
+        function renderContentTable() {
+            document.getElementById('breadcrumb-platform').innerText = currentPlatform;
+            document.getElementById('main-title').innerText = currentPlatform;
+
+            const tbody = document.getElementById('content-table-body');
+            const emptyState = document.getElementById('empty-state');
+            const isAdmin = currentUserRole === 'admin';
+            
+            const thActionCol = document.getElementById('th-action-col');
+            if (isAdmin) {
+                thActionCol.classList.remove('hidden');
+            } else {
+                thActionCol.classList.add('hidden');
+            }
+
+            tbody.innerHTML = '';
+            let items = appData[currentPlatform] || [];
+
+            if (searchQuery !== "") {
+                items = items.filter(item => {
+                    const ideaMatch = item.idea && item.idea.toLowerCase().includes(searchQuery);
+                    let formattedDate = item.date || "";
+                    try {
+                        const d = new Date(item.date);
+                        if (!isNaN(d)) {
+                            formattedDate = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).toLowerCase();
+                        }
+                    } catch(e) {}
+                    return ideaMatch || formattedDate.includes(searchQuery) || (item.date && item.date.toLowerCase().includes(searchQuery));
+                });
+            }
+
+            if (items.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.remove('flex');
+                emptyState.classList.add('hidden');
+            }
+
+            items.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50/80 transition border-b border-gray-100 last:border-none align-top";
+
+                const hasImage = item.image && item.image.trim() !== "";
+                const statusBadge = hasImage 
+                    ? '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60"><i class="fa-solid fa-check-circle mr-1.5"></i> Ready / Ada Gambar</span>'
+                    : '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60"><i class="fa-solid fa-clock mr-1.5"></i> Belum Ada Gambar</span>';
+
+                const imagePreviewHtml = hasImage 
+                    ? `<div class="flex items-center space-x-3">
+                         <div class="cursor-pointer group relative inline-block flex-shrink-0" onclick="openImageViewer('${item.image.replace(/'/g, "\\'")}')">
+                           <img src="${item.image}" alt="Thumbnail" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-sm group-hover:opacity-90 transition">
+                           <div class="absolute inset-0 bg-black/30 rounded-xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs">
+                             <i class="fa-solid fa-magnifying-glass-plus"></i>
+                           </div>
+                         </div>
+                         <div>
+                            ${statusBadge}
+                            <a href="${item.image}" download="konten-${currentPlatform}-${index+1}.png" class="text-[11px] text-indigo-600 hover:underline font-medium block mt-1"><i class="fa-solid fa-download mr-1"></i> Download</a>
+                         </div>
+                       </div>`
+                    : `<div>
+                         ${statusBadge}
+                         <span class="text-[11px] text-gray-400 block mt-1">Belum ada file</span>
+                       </div>`;
+
+                const accStatus = item.accStatus || 'pending';
+                let accBadgeHtml = '';
+                if (accStatus === 'acc') {
+                    accBadgeHtml = `<button type="button" onclick="toggleAccStatus('${item.id}')" class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition">
+                                      <i class="fa-solid fa-circle-check mr-1.5"></i> ACC (Disetujui)
+                                    </button>`;
+                } else if (accStatus === 'rejected') {
+                    accBadgeHtml = `<button type="button" onclick="toggleAccStatus('${item.id}')" class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm hover:bg-rose-700 transition">
+                                      <i class="fa-solid fa-circle-xmark mr-1.5"></i> Ditolak
+                                    </button>`;
+                } else {
+                    accBadgeHtml = `<button type="button" onclick="toggleAccStatus('${item.id}')" class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300 transition">
+                                      <i class="fa-solid fa-hourglass-half mr-1.5"></i> Belum ACC
+                                    </button>`;
+                }
+
+                // Post Link Column HTML
+                let postLinkHtml = '<span class="text-gray-400 italic text-xs">Belum ada link</span>';
+                if (item.postLink && item.postLink.trim() !== '') {
+                    postLinkHtml = `<a href="${escapeHtml(item.postLink)}" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition shadow-sm">
+                                      <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> Kunjungi Postingan
+                                    </a>`;
+                }
+
+                let formattedDate = '<span class="text-gray-400 italic">Tanpa Tanggal</span>';
+                if (item.date && item.date !== '0000-00-00') {
+                    try {
+                        const d = new Date(item.date);
+                        if (!isNaN(d)) {
+                            formattedDate = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        } else {
+                            formattedDate = item.date;
+                        }
+                    } catch(e) {
+                        formattedDate = item.date;
+                    }
+                }
+
+                let actionColumnHtml = isAdmin ? `
+                    <td class="py-4 px-6 text-center whitespace-nowrap pt-5">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button type="button" onclick="editContent(${item.id})" class="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition shadow-sm" title="Edit">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button type="button" onclick="deleteContent(${item.id})" class="p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition shadow-sm" title="Hapus">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                ` : '';
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 text-center font-medium text-gray-500 text-xs pt-5">${index + 1}</td>
+                    <td class="py-4 px-6 font-medium text-gray-800 text-sm whitespace-nowrap pt-5">${formattedDate}</td>
+                    <td class="py-4 px-6 text-gray-800 text-sm whitespace-pre-wrap break-words leading-relaxed py-5">${escapeHtml(item.idea)}</td>
+                    <td class="py-4 px-6 pt-4">${imagePreviewHtml}</td>
+                    <td class="py-4 px-6 text-center pt-4">${accBadgeHtml}</td>
+                    <td class="py-4 px-6 text-center pt-4">${postLinkHtml}</td>
+                    ${actionColumnHtml}
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function openAddContentModal() {
+            if (currentUserRole !== 'admin') return;
+            document.getElementById('content-modal-title').innerText = "Tambah Konten Baru";
+            document.getElementById('content-id').value = '';
+            document.getElementById('content-date').value = '';
+            document.getElementById('content-idea').value = '';
+            document.getElementById('content-post-link').value = '';
+            document.getElementById('content-image-file').value = '';
+            document.getElementById('content-image-data').value = '';
+            document.getElementById('image-preview-container').classList.add('hidden');
+
+            const modal = document.getElementById('content-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeContentModal() {
+            const modal = document.getElementById('content-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function previewImageInput(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('content-image-data').value = e.target.result;
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeUploadedImage() {
+            document.getElementById('content-image-file').value = '';
+            document.getElementById('content-image-data').value = '';
+            document.getElementById('image-preview-container').classList.add('hidden');
+        }
+
+        async function handleContentSubmit(event) {
+            event.preventDefault();
+            if (currentUserRole !== 'admin') return;
+
+            const id = document.getElementById('content-id').value;
+            const date = document.getElementById('content-date').value;
+            const idea = document.getElementById('content-idea').value;
+            const post_link = document.getElementById('content-post-link').value.trim();
+            const image = document.getElementById('content-image-data').value;
+
+            try {
+                const response = await fetch(API_URL + '?action=save_content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platform: currentPlatform, id, date, idea, post_link, image })
+                });
+                const res = await response.json();
+
+                if (res.success) {
+                    closeContentModal();
+                    fetchAppData();
+                    showToast(id ? "Konten berhasil diperbarui di MySQL!" : "Konten baru disimpan ke MySQL!");
+                } else {
+                    showToast(res.message, "fa-triangle-exclamation", "text-amber-400");
+                }
+            } catch (e) {
+                showToast("Gagal menyimpan ke database", "fa-triangle-exclamation", "text-rose-400");
+            }
+        }
+
+        async function editContent(id) {
+            if (currentUserRole !== 'admin') return;
+            const items = appData[currentPlatform] || [];
+            const item = items.find(i => i.id == id);
+            if (!item) return;
+
+            document.getElementById('content-modal-title').innerText = "Edit Konten";
+            document.getElementById('content-id').value = item.id;
+            document.getElementById('content-date').value = (item.date && item.date !== '0000-00-00') ? item.date : '';
+            document.getElementById('content-idea').value = item.idea;
+            document.getElementById('content-post-link').value = item.postLink || '';
+            document.getElementById('content-image-file').value = '';
+            document.getElementById('content-image-data').value = item.image || '';
+
+            if (item.image) {
+                document.getElementById('image-preview').src = item.image;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+            } else {
+                document.getElementById('image-preview-container').classList.add('hidden');
+            }
+
+            const modal = document.getElementById('content-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        async function deleteContent(id) {
+            if (currentUserRole !== 'admin') return;
+            if (confirm("Apakah Anda yakin ingin menghapus konten ini dari database?")) {
+                try {
+                    const response = await fetch(API_URL + '?action=delete_content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    const res = await response.json();
+                    if (res.success) {
+                        fetchAppData();
+                        showToast("Konten dihapus dari MySQL!", "fa-circle-exclamation", "text-rose-400");
+                    }
+                } catch (e) {
+                    showToast("Gagal menghapus konten", "fa-triangle-exclamation", "text-rose-400");
+                }
+            }
+        }
+
+        async function toggleAccStatus(id) {
+            const items = appData[currentPlatform] || [];
+            const item = items.find(i => i.id == id);
+            if (!item) return;
+
+            let currentStatus = item.accStatus || 'pending';
+            let nextStatus = 'acc';
+            if (currentStatus === 'acc') nextStatus = 'rejected';
+            else if (currentStatus === 'rejected') nextStatus = 'pending';
+            else nextStatus = 'acc';
+
+            try {
+                const response = await fetch(API_URL + '?action=update_acc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, status: nextStatus })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    fetchAppData();
+                    showToast("Status ACC diperbarui!");
+                }
+            } catch (e) {
+                showToast("Gagal memperbarui status ACC", "fa-triangle-exclamation", "text-rose-400");
+            }
+        }
+
+        function openAddPlatformModal() {
+            if (currentUserRole !== 'admin') return;
+            isPlatformEditMode = false;
+            document.getElementById('platform-modal-title').innerText = "Tambah Social Media Baru";
+            document.getElementById('platform-old-name').value = '';
+            document.getElementById('platform-name-input').value = '';
+
+            const modal = document.getElementById('platform-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function openEditPlatformModal() {
+            if (currentUserRole !== 'admin') return;
+            isPlatformEditMode = true;
+            document.getElementById('platform-modal-title').innerText = "Edit Nama Platform";
+            document.getElementById('platform-old-name').value = currentPlatform;
+            document.getElementById('platform-name-input').value = currentPlatform;
+
+            const modal = document.getElementById('platform-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePlatformModal() {
+            const modal = document.getElementById('platform-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        async function handlePlatformSubmit(event) {
+            event.preventDefault();
+            if (currentUserRole !== 'admin') return;
+
+            const newName = document.getElementById('platform-name-input').value.trim();
+            const oldName = document.getElementById('platform-old-name').value;
+
+            if (!newName) return;
+
+            try {
+                const response = await fetch(API_URL + '?action=save_platform', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_name: isPlatformEditMode ? oldName : '', new_name: newName })
+                });
+                const res = await response.json();
+
+                if (res.success) {
+                    currentPlatform = newName;
+                    closePlatformModal();
+                    fetchAppData();
+                    showToast(isPlatformEditMode ? "Platform diperbarui di MySQL!" : "Platform baru ditambahkan ke MySQL!");
+                } else {
+                    showToast(res.message, "fa-triangle-exclamation", "text-amber-400");
+                }
+            } catch (e) {
+                showToast("Gagal menyimpan platform", "fa-triangle-exclamation", "text-rose-400");
+            }
+        }
+
+        async function deleteCurrentPlatform() {
+            if (currentUserRole !== 'admin') return;
+            const platforms = Object.keys(appData);
+            if (platforms.length <= 1) {
+                showToast("Minimal harus ada 1 platform social media!", "fa-triangle-exclamation", "text-amber-400");
+                return;
+            }
+
+            if (confirm(`Apakah Anda yakin ingin menghapus platform "${currentPlatform}" dan seluruh datanya dari MySQL?`)) {
+                try {
+                    const response = await fetch(API_URL + '?action=delete_platform', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: currentPlatform })
+                    });
+                    const res = await response.json();
+                    if (res.success) {
+                        const remaining = Object.keys(appData).filter(p => p !== currentPlatform);
+                        currentPlatform = remaining[0];
+                        fetchAppData();
+                        showToast("Platform dihapus dari database!", "fa-circle-exclamation", "text-rose-400");
+                    }
+                } catch (e) {
+                    showToast("Gagal menghapus platform", "fa-triangle-exclamation", "text-rose-400");
+                }
+            }
+        }
+
+        function openImageViewer(imgSrc) {
+            document.getElementById('viewer-img').src = imgSrc;
+            document.getElementById('viewer-download-btn').href = imgSrc;
+            const modal = document.getElementById('image-viewer-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeImageViewer(event) {
+            closeImageViewerDirect();
+        }
+
+        function closeImageViewerDirect() {
+            const modal = document.getElementById('image-viewer-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function showToast(message, iconClass = "fa-circle-check", iconColor = "text-emerald-400") {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.innerText = message;
+            toastIcon.className = `fa-solid ${iconClass} ${iconColor} text-base`;
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
